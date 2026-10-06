@@ -245,12 +245,12 @@ func (t *Task) checkTargetNotRestored(ctx context.Context) error {
 	}
 
 	for _, pchannel := range pchannels {
-		resp, err := t.grpc.GetReplicateInfo(ctx, t.args.TargetClusterID, pchannel)
+		resp, err := t.grpc.GetReplicateInfo(ctx, t.args.SourceClusterID, pchannel)
 		if err != nil {
-			return fmt.Errorf("secondary: read the replicate checkpoint of %s: %v", pchannel, err)
+			return fmt.Errorf("secondary: read the replicate checkpoint of %s: %w", pchannel, err)
 		}
 		tick := resp.GetCheckpoint().GetTimeTick()
-		if tick != 0 {
+		if tick == 0 {
 			continue
 		}
 		return fmt.Errorf("secondary: %s already has a replicate checkpoint (%s is at time tick "+
