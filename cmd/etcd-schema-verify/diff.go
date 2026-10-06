@@ -43,14 +43,14 @@ func diffFields(diffs *[]Diff, src, dst []FieldDump) {
 		dstMap[f.FieldID] = f
 	}
 
-	allIDs := collectIDs(dstMap, srcMap)
+	allIDs := collectIDs(srcMap, dstMap)
 	for _, id := range allIDs {
 		sf, inSrc := srcMap[id]
 		df, inDst := dstMap[id]
 
 		label := fmt.Sprintf("fields[id=%d]", id)
 		if inSrc {
-			label = fmt.Sprintf("fields[id=%d,name=%s]", id, df.Name)
+			label = fmt.Sprintf("fields[id=%d,name=%s]", id, sf.Name)
 		} else if inDst {
 			label = fmt.Sprintf("fields[id=%d,name=%s]", id, df.Name)
 		}
@@ -60,7 +60,7 @@ func diffFields(diffs *[]Diff, src, dst []FieldDump) {
 			continue
 		}
 		if !inDst {
-			*diffs = append(*diffs, Diff{Path: label, Src: "<missing>", Dst: sf.Name})
+			*diffs = append(*diffs, Diff{Path: label, Src: sf.Name, Dst: "<missing>"})
 			continue
 		}
 
@@ -76,6 +76,7 @@ func diffFields(diffs *[]Diff, src, dst []FieldDump) {
 		cmp(diffs, label+".is_clustering_key", sf.IsClusteringKey, df.IsClusteringKey)
 		cmp(diffs, label+".is_function_output", sf.IsFunctionOutput, df.IsFunctionOutput)
 		cmp(diffs, label+".nullable", sf.Nullable, df.Nullable)
+		cmp(diffs, label+".default_value", sf.DefaultValue, df.DefaultValue)
 		cmp(diffs, label+".state", sf.State, df.State)
 	}
 }
