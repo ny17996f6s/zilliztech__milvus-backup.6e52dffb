@@ -52,7 +52,7 @@ func (cdft *collDynFieldTask) Execute(ctx context.Context) error {
 
 	dynFields := make(map[int64]*schemapb.FieldSchema)
 	for _, collID := range collIDs {
-		prefix := fmt.Sprintf("%s/meta/root-coord/fields/%d", cdft.etcdRootPath, collID)
+		prefix := fmt.Sprintf("%s/meta/root-coord/fields/%d/", cdft.etcdRootPath, collID)
 		cdft.logger.Info("start to get field schemas from etcd", zap.String("prefix", prefix))
 		resp, err := cdft.etcd.getPrefix(ctx, prefix)
 		if err != nil {
@@ -73,7 +73,7 @@ func (cdft *collDynFieldTask) Execute(ctx context.Context) error {
 			if !field.GetIsDynamic() {
 				continue
 			}
-			if existing, ok := dynFields[field.GetFieldID()]; ok {
+			if existing, ok := dynFields[collID]; ok {
 				cdft.logger.Warn("multiple dynamic fields found for one collection, keeping the first",
 					zap.Int64("collection_id", collID),
 					zap.Int64("existing_field_id", existing.GetFieldID()),
@@ -86,7 +86,7 @@ func (cdft *collDynFieldTask) Execute(ctx context.Context) error {
 				zap.Int64("field_id", field.GetFieldID()),
 				zap.String("name", field.GetName()),
 				zap.Bool("nullable", field.GetNullable()))
-			dynFields[field.GetFieldID()] = field
+			dynFields[collID] = field
 		}
 	}
 
