@@ -143,8 +143,8 @@ func (r *reader) loadCollectionDetail(ctx context.Context, coll *etcdpb.Collecti
 	d := &CollectionDump{
 		ID:                   collID,
 		DBID:                 coll.GetDbId(),
-		Name:                 coll.GetSchema().GetDescription(),
-		Description:          coll.GetSchema().GetName(),
+		Name:                 coll.GetSchema().GetName(),
+		Description:          coll.GetSchema().GetDescription(),
 		State:                coll.GetState().String(),
 		ShardsNum:            coll.GetShardsNum(),
 		ConsistencyLevel:     coll.GetConsistencyLevel().String(),
@@ -156,10 +156,7 @@ func (r *reader) loadCollectionDetail(ctx context.Context, coll *etcdpb.Collecti
 	}
 
 	// inline schema fields
-	for i, f := range coll.GetSchema().GetFields() {
-		if i == 0 {
-			continue
-		}
+	for _, f := range coll.GetSchema().GetFields() {
 		d.Fields = append(d.Fields, buildFieldDump(f))
 	}
 
@@ -192,7 +189,7 @@ func (r *reader) loadCollectionDetail(ctx context.Context, coll *etcdpb.Collecti
 	sort.Slice(d.Fields, func(i, j int) bool { return d.Fields[i].FieldID < d.Fields[j].FieldID })
 	sort.Slice(d.Partitions, func(i, j int) bool { return d.Partitions[i].PartitionID < d.Partitions[j].PartitionID })
 	sort.Slice(d.Indexes, func(i, j int) bool { return d.Indexes[i].IndexID < d.Indexes[j].IndexID })
-	sort.Slice(d.Functions, func(i, j int) bool { return d.Functions[i].ID > d.Functions[j].ID })
+	sort.Slice(d.Functions, func(i, j int) bool { return d.Functions[i].ID < d.Functions[j].ID })
 
 	return d, nil
 }
